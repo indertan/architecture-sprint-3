@@ -1,85 +1,47 @@
-# Базовая настройка
+# Задание 1. Анализ и планирование
 
-## Запуск minikube
+Система "Smart Home Monolith" представляет собой монолитное приложение для управления отоплением и мониторинга температуры в умном доме. 
+Пользователи могут включать/выключать отопление, устанавливать температуру в системе отопления и получать информацию о текущей температуре.
+Можно выделить следующие домены (исходя из описания и имеющейся кодовой базы, [диаграмма с описанием доменов](diagrams/asis/domain/Domain.puml))
+- Умные устройства
+- Пользователи
 
-[Инструкция по установке](https://minikube.sigs.k8s.io/docs/start/)
+Основные недостатки текущего решения:
+- Нет возможности точечного масштабирования функционала. Из-за этого, при серьезной нагрузке, могут возникнуть проблемы с масштабированием
+- Необходимость полной остановки системы при любом изменении системы будет означать значительное время недоступности системы клиентам
+- Внесение изменений в рамках единой кодовой базы может приводить к непредсказуемым ошибкам
+- Длительный цикл разработки и развертывания системы
+- Синхронное взаимодействие с датчиками может приводить к недоступности системы (количество исполняющих потоков обычно ограничено, 
+при долгом ответе от устройств система может подвисать из-за занятости всех потоков получением данных от устройств).
 
-```bash
-minikube start
-```
+[Диаграмма контекста текущего решения](diagrams/asis/context/Context.puml)
 
-## Добавление токена авторизации GitHub
+# Задание 2. Проектирование микросервисной архитектур
 
-[Получение токена](https://github.com/settings/tokens/new)
+Исходя из требований к целовой системе можно выделить следующие домены ([диаграмма с описанием доменов](diagrams/tobe/domain/Domain.puml))
 
-```bash
-kubectl create secret docker-registry ghcr --docker-server=https://ghcr.io --docker-username=<github_username> --docker-password=<github_token> -n default
-```
+Монолитное решение разделено на следующие микросервисы
+- Микросервис управления пользователями
+- Микросервис управления устройствами
+- Микросервис управления умным домом
+- Микросервис управления сценариями
+- Микросервис управления телеметрией
 
-## Установка API GW kusk
+Также отдельно выделен компонент по взаимодействию с датчиками (шлюз)
 
-[Install Kusk CLI](https://docs.kusk.io/getting-started/install-kusk-cli)
+Все входящие клиентские запросы поступают на API Gateway, которые осуществляет их маршрутизацию по микросервисам. 
+Микросервисы хранят свои данные в БД (Postgresql + ClickHouse). Обмен данными между микросервисами происходит асинхронно, 
+через брокер Kafka путем публикации событий.
 
-```bash
-kusk cluster install
-```
+[Диаграмма контейнеров](diagrams/tobe/container/Container.puml)
 
-## Смена адреса образа в helm chart
+[Диаграмма компонентов микросервиса устройств](diagrams/tobe/component/Device.puml)  
+[Диаграмма компонентов микросервиса пользовательских сценариев](diagrams/tobe/component/Scenario.puml)  
+[Диаграмма компонентов микросервиса умных домов](diagrams/tobe/component/SmartHome.puml)  
+[Диаграмма компонентов микросервиса телеметрии](diagrams/tobe/component/Telemetry.puml)  
+[Диаграмма компонентов микросервиса пользователей](diagrams/tobe/component/User.puml)  
 
-После того как вы сделали форк репозитория и у вас в репозитории отработал GitHub Action. Вам нужно получить адрес образа <https://github.com/><github_username>/architecture-sprint-3/pkgs/container/architecture-sprint-3
+[Диаграмма кода микросервиса устройств](diagrams/tobe/code/Device.puml)
 
-Он выглядит таким образом
-```ghcr.io/<github_username>/architecture-sprint-3:latest```
-
-Замените адрес образа в файле `helm/smart-home-monolith/values.yaml` на полученный файл:
-
-```yaml
-image:
-  repository: ghcr.io/<github_username>/architecture-sprint-3
-  tag: latest
-```
-
-## Настройка terraform
-
-[Установите Terraform](https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart#install-terraform)
-
-Создайте файл ~/.terraformrc
-
-```hcl
-provider_installation {
-  network_mirror {
-    url = "https://terraform-mirror.yandexcloud.net/"
-    include = ["registry.terraform.io/*/*"]
-  }
-  direct {
-    exclude = ["registry.terraform.io/*/*"]
-  }
-}
-```
-
-## Применяем terraform конфигурацию
-
-```bash
-cd terraform
-terraform init
-terraform apply
-```
-
-## Настройка API GW
-
-```bash
-kusk deploy -i api.yaml
-```
-
-## Проверяем работоспособность
-
-```bash
-kubectl port-forward svc/kusk-gateway-envoy-fleet -n kusk-system 8080:80
-curl localhost:8080/hello
-```
-
-## Delete minikube
-
-```bash
-minikube delete
-```
+# Задание 3. Разработка ER-диаграммы
+[Диаграмма ER](diagrams/tobe/er/ER.puml)

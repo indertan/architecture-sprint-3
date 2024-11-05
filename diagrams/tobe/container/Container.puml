@@ -1,0 +1,66 @@
+@startuml
+!include <C4/C4_Container>
+!include ../../icons/icons.puml
+!include <office/Servers/database_server>
+
+AddContainerTag("db", $sprite="database_server", $legendText="database container")
+
+title  Диаграмма контейнеров системы Умного дома
+
+Person(user, "Пользователь")
+Person(admin, "Администратор")
+System_Boundary(system, "Умный дом") {
+    Container(frontend, "Интернет-клиент")
+    Container(mobile, "Мобильное приложение")
+    Container(adminPanel, "Панель администратора")
+
+    Container(apiGateway, "АPI Gateway", "Kusk", "Маршрутизация запросов, балансировка нагрузки, аутентификация, авторизация")
+
+    Container(userMicroservice, "Управление пользователями", "Java", "Управление пользователями", $sprite="java", $link="../component/User.puml")
+    Container(deviceMicroservice, "Управление устройствами", "Java", "Управление датчиками", $sprite="java", $link="../component/Device.puml")
+    Container(smartHomeMicroservice, "Управление умными домами", "Java", "Управление умными домами", $sprite="java", $link="../component/SmartHome.puml")
+    Container(telemetryMicroservice, "Телеметрия", "Java", "Хранение данных с датчиков", $sprite="java", $link="../component/Telemetry.puml")
+    Container(scenarioMicroservice, "Пользовательские сценарии", "Java", "Управление пользовательскими сценариями", $sprite="java", $link="../component/Scenario.puml")
+
+    Container(sensorGate, "Шлюз взаимодействия с датчиками", "Java", "Организация взаимодействия с датчиками", $sprite="java")
+
+    ContainerDb(userDb, "База данных пользователей", "PostgreSQL", $sprite="postgresql")
+    ContainerDb(deviceDb, "База данных устройств", "PostgreSQL", $sprite="postgresql")
+    ContainerDb(smartHomeDb, "База данных умных домов", "PostgreSQL", $sprite="postgresql")
+    ContainerDb(scenarioDb, "База данных сценариев", "MongoDB", $sprite="mongodb")
+    ContainerDb(telemetryDb, "База данных телеметрии", "ClickHouse", $tags="db")
+
+    ContainerQueue(dataBus, "Шина данных", "Kafka", $sprite="apachekafka_original_wordmark")
+
+    Rel(frontend, apiGateway, "Направление запроса клиентов", "REST")
+    Rel(mobile, apiGateway, "Направление запроса клиентов", "REST")
+    Rel(adminPanel, apiGateway, "Направление запроса администратора", "REST")
+
+    Rel(apiGateway, userMicroservice, "Регистрация пользователя, изменение данных профиля", "REST")
+    Rel(apiGateway, deviceMicroservice, "Регистрация/удаление датчиков, отправка датчику команды", "REST")
+    Rel(apiGateway, smartHomeMicroservice, "Регистрация/удаление умных домов клиента", "REST")
+    Rel(apiGateway, telemetryMicroservice, "Получить телеметрию по датчику", "REST")
+    Rel(apiGateway, scenarioMicroservice, "Создание/редактирование/удаление пользовательских сценариев", "REST")
+
+    Rel_L(userMicroservice, userDb, "")
+    Rel_R(deviceMicroservice, deviceDb, "")
+    Rel(smartHomeMicroservice, smartHomeDb, "")
+    Rel_R(scenarioMicroservice, scenarioDb, "")
+    Rel_U(telemetryMicroservice, telemetryDb, "")
+
+    Rel(userMicroservice, dataBus, "Чтение и запись событий")
+    Rel(deviceMicroservice, dataBus, "Чтение и запись событий")
+    Rel(smartHomeMicroservice, dataBus, "Чтение и запись событий")
+    Rel(scenarioMicroservice, dataBus, "Чтение и запись событий")
+    Rel(telemetryMicroservice, dataBus, "Чтение и запись событий")
+    Rel_U(sensorGate, dataBus, "Чтение запросов к датчикам, запись результатов")
+}
+
+System_Ext(device, "Умные устройства", "Устройства, которыми можно управлять по API")
+
+Rel(user, frontend, "Пользуется системой", "REST")
+Rel(user, mobile, "Пользуется системой", "REST")
+Rel(admin, adminPanel, "Пользуется системой", "REST")
+
+Rel(sensorGate, device, "Взаимодействие с датчиками")
+@enduml

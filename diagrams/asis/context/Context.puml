@@ -1,0 +1,23 @@
+@startuml
+title Диаграмма контекста "Умный дом"
+
+!include <C4/C4_Context.puml>
+
+Person(user, "User", "Пользователь")
+
+System(SmartHome, "Умный дом", "Управление умными устройствами")
+
+SystemDb(SmartHomeDb, "БД умного дома", "PostgreSQL")
+
+System_Ext(heatingSystem, "Датчик управления отоплением", "Управление системой отопления")
+System_Ext(temperatureSensor, "Датчик температуры", "Мониторинг температуры")
+
+Rel(user, SmartHome, "Получить информацию о температуре с датчика")
+Rel(user, SmartHome, "Управлять температурой отопления")
+
+Rel_L(SmartHome, SmartHomeDb, "Чтение и запись данных")
+
+Rel(SmartHome, temperatureSensor, "Получение текущей температуры")
+Rel(SmartHome, heatingSystem, "Включение/отключение отопления")
+Rel(SmartHome, heatingSystem, "Изменение температуры отопления")
+@enduml

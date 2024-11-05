@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component.puml>
+!include <C4/C4_Container.puml>
+!include ../../icons/icons.puml
+
+title Диаграмма компонентов микросервиса управления пользователями
+
+Container_Boundary(smartHomeMicroservice, "Микросервис управления пользователями") {
+    Component(kafkaAdapter, "Адаптер шины данных", "Spring Bean", "Занимается чтением и записью из шины данных")
+    Component(service, "Сервис", "Spring Bean", "Бизнес логика сервиса, обработка входящих запросов")
+    Component(controller, "Rest-контроллер", "MVC Rest Controller", "Предоставляет API для вызова")
+    Component(repository, "Репозиторий", "Potgresql JDBC Driver", "Взаимодействие с базой данных")
+
+    Rel(controller, service, "Uses", "")
+    Rel(service, repository, "Uses", "")
+    Rel(service, kafkaAdapter, "Uses", "")
+}
+
+Container(apiGateway, "АPI Gateway", "Kusk", "Маршрутизация запросов, балансировка нагрузки, аутентификация, авторизация")
+ContainerQueue(dataBus, "Шина данных", "Kafka", $sprite="apachekafka_original_wordmark")
+ContainerDb(userDb, "База данных пользователей", "PostgreSQL", $sprite="postgresql")
+
+Rel(apiGateway, controller, "Uses", "JSON/HTTPS")
+Rel(kafkaAdapter, dataBus, "Uses", "TCP")
+Rel(repository, userDb, "Uses", "JDBC")
+@enduml
