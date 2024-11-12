@@ -1,23 +1,26 @@
 @startuml
 title Диаграмма контекста "Умный дом"
 
-!include <C4/C4_Context.puml>
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/release/v2.5.0/C4_Context.puml
 
-Person(user, "User", "Пользователь")
+Person(User, "User", "Пользователь")
 
-System(SmartHome, "Умный дом", "Управление умными устройствами")
+System(FrontEnd, "Пользовательский интерфейс", "Интерфейс по управлению системой умного дома")
+System(SmartHome, "Умный дом", "Предоставляет API для управления умными устройствами")
 
 SystemDb(SmartHomeDb, "БД умного дома", "PostgreSQL")
 
-System_Ext(heatingSystem, "Датчик управления отоплением", "Управление системой отопления")
-System_Ext(temperatureSensor, "Датчик температуры", "Мониторинг температуры")
+System_Ext(HeatingSystem, "Датчик управления отоплением", "Управление системой отопления")
+System_Ext(TemperatureSensor, "Датчик температуры", "Мониторинг температуры")
 
-Rel(user, SmartHome, "Получить информацию о температуре с датчика")
-Rel(user, SmartHome, "Управлять температурой отопления")
+Rel(User, FrontEnd, "Получить информацию о температуре с датчика")
+Rel(User, FrontEnd, "Управлять температурой отопления")
+
+Rel(FrontEnd, SmartHome, "Направление запросов клиента")
 
 Rel_L(SmartHome, SmartHomeDb, "Чтение и запись данных")
 
-Rel(SmartHome, temperatureSensor, "Получение текущей температуры")
-Rel(SmartHome, heatingSystem, "Включение/отключение отопления")
-Rel(SmartHome, heatingSystem, "Изменение температуры отопления")
+Rel(SmartHome, TemperatureSensor, "Получение текущей температуры")
+Rel(SmartHome, HeatingSystem, "Включение/отключение отопления")
+Rel(SmartHome, HeatingSystem, "Изменение температуры отопления")
 @enduml

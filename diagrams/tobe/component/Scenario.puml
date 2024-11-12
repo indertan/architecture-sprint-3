@@ -1,6 +1,6 @@
 @startuml
-!include <C4/C4_Component.puml>
-!include <C4/C4_Container.puml>
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/release/v2.5.0/C4_Component.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/release/v2.5.0/C4_Container.puml
 !include ../../icons/icons.puml
 
 title Диаграмма компонентов микросервиса пользовательских сценариев

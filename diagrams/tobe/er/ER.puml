@@ -21,6 +21,13 @@ entity SmartHome {
     user_id : UUID
 }
 
+entity UserSmartHome {
+    id : UUID
+    --
+    user_id : UUID
+    smart_home_id : UUID
+}
+
 entity Scenario {
     *id : UUID
     --
@@ -67,7 +74,8 @@ entity TelemetryData {
     device_id : UUID
 }
 
-User ||--o{ SmartHome
+User ||--o{ UserSmartHome
+SmartHome ||--o{ UserSmartHome
 User ||--o{ Scenario
 SmartHome ||--o{ Device
 Device }o--|| DeviceType

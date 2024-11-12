@@ -1,9 +1,6 @@
 @startuml
-!include <C4/C4_Container>
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/release/v2.5.0/C4_Container.puml
 !include ../../icons/icons.puml
-!include <office/Servers/database_server>
-
-AddContainerTag("db", $sprite="database_server", $legendText="database container")
 
 title  Диаграмма контейнеров системы Умного дома
 
@@ -28,7 +25,7 @@ System_Boundary(system, "Умный дом") {
     ContainerDb(deviceDb, "База данных устройств", "PostgreSQL", $sprite="postgresql")
     ContainerDb(smartHomeDb, "База данных умных домов", "PostgreSQL", $sprite="postgresql")
     ContainerDb(scenarioDb, "База данных сценариев", "MongoDB", $sprite="mongodb")
-    ContainerDb(telemetryDb, "База данных телеметрии", "ClickHouse", $tags="db")
+    ContainerDb(telemetryDb, "База данных телеметрии", "ClickHouse")
 
     ContainerQueue(dataBus, "Шина данных", "Kafka", $sprite="apachekafka_original_wordmark")
 
