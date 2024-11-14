@@ -1,0 +1,85 @@
+@startuml
+
+title Диаграмма ER системы Умного дома
+
+entity User {
+    id : UUID
+    --
+    username : string
+    password : string
+    full_name : string
+    created_at : datetime
+}
+
+entity SmartHome {
+    id : UUID
+    --
+    name : string
+    address : string
+    created_at : datetime
+    --
+    user_id : UUID
+}
+
+entity UserSmartHome {
+    id : UUID
+    --
+    user_id : UUID
+    smart_home_id : UUID
+}
+
+entity Scenario {
+    *id : UUID
+    --
+    name : string
+    configuration : json
+    --
+    user_id : UUID
+}
+
+entity Device {
+    id : UUID
+    --
+    name : string
+    serial_number : string
+    created_at : datetime
+    --
+    device_type_id : UUID
+    house_id : UUID
+    module_id : UUID
+}
+
+entity DeviceType {
+    *id : UUID
+    --
+    name : string
+    description : string
+    created_at : datetime
+}
+
+entity Module {
+    *id : UUID
+    --
+    name : string
+    description : string
+    created_at : datetime
+}
+
+entity TelemetryData {
+    *id : UUID
+    --
+    created_at : datetime
+    data : json
+    --
+    device_id : UUID
+}
+
+User ||--o{ UserSmartHome
+SmartHome ||--o{ UserSmartHome
+User ||--o{ Scenario
+SmartHome ||--o{ Device
+Device }o--|| DeviceType
+Device }o--|| Module
+Device ||--o{ TelemetryData
+
+@enduml

@@ -1,0 +1,6 @@
+@startuml
+!include java.puml
+!include kafka.puml
+!include postgresql.puml
+!include mongodb.puml
+@enduml

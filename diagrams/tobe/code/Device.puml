@@ -1,0 +1,154 @@
+@startuml
+
+title Диаграмма кода микросервиса управления устройствами
+
+class DeviceController {
+    - DeviceService deviceService
+
+    + ResponseEntity<DeviceDTO> create(DeviceDTO deviceDto)
+    + ResponseEntity<DeviceDTO> get(UUID id)
+    + ResponseEntity<List<DeviceDTO>> getAll()
+    + ResponseEntity<DeviceDTO> update(UUID id, DeviceDTO deviceDto)
+    + ResponseEntity<Void> delete(UUID id)
+    + ResponseEntity<StateDTO> getState(UUID id)
+    + ResponseEntity<Void> setState(UUID deviceId, StateDTO state)
+    + ResponseEntity<Void> execute(CommandDTO command)
+}
+
+class DeviceTypeController {
+    - DeviceTypeService deviceTypeService
+
+    + ResponseEntity<DeviceTypeDTO> create(DeviceTypeDTO deviceTypeDto)
+    + ResponseEntity<DeviceTypeDTO> get(UUID id)
+    + ResponseEntity<DeviceTypeDTO> update(DeviceTypeDTO deviceTypeDto)
+    + ResponseEntity<Void> delete(UUID id)
+}
+
+class ModuleController {
+    - ModuleService moduleService
+
+    + ResponseEntity<ModuleDto> create(DeviceTypeDto deviceTypeDto)
+    + ResponseEntity<DeviceTypeDto> get(UUID id)
+    + ResponseEntity<DeviceTypeDto> update(DeviceTypeDto deviceTypeDto)
+    + ResponseEntity<Void> delete(UUID id)
+}
+
+class KafkaTemplate {}
+
+class DeviceService {
+    - DeviceRepository deviceRepository
+    - DeviceTypeRepository deviceTypeRepository
+    - KafkaTemplate kafkaTemplate
+
+    + boolean create(DeviceDTO deviceDto)
+    + List<DeviceDTO> getAll()
+    + DeviceDTO get(UUID deviceId)
+    + boolean update(DeviceDTO deviceDto)
+    + void delete(UUID deviceId)
+    + StateDTO getState(UUID deviceId)
+    + void setState(UUID deviceId, StateDTO state)
+    + void execute(CommandDTO command)
+}
+
+class DeviceTypeService {
+    - DeviceTypeRepository deviceTypeRepository
+    - KafkaTemplate kafkaTemplate
+
+    + DeviceTypeDTO create(DeviceTypeDTO deviceTypeDto)
+    + List<DeviceTypeDTO> getAll(UUID deviceTypeId)
+    + DeviceTypeDTO get(UUID deviceTypeId)
+    + DeviceTypeDTO update(DeviceTypeDTO deviceTypeDto)
+    + void delete(UUID deviceTypeId)
+}
+
+class ModuleService {
+    - ModuleRepository moduleRepository
+    - KafkaTemplate kafkaTemplate
+
+    + ModuleDTO create(ModuleDTO moduleDto)
+    + ModuleDTO get(UUID deviceTypeId)
+    + List<ModuleDTO> getAll()
+    + ModuleDTO update(ModuleDTO moduleDto)
+    + void delete(UUID deviceTypeId)
+}
+
+class DeviceRepository {
+    + List<Device> findAll()
+    + Device findById(UUID deviceId)
+    + Device save(Device device)
+    + void deleteById(UUID deviceId)
+}
+
+class ModuleRepository {
+    + List<Module> findAll()
+    + Module findById(UUID moduleId)
+    + Module save(Module module)
+    + void deleteById(UUID moduleId)
+}
+
+class DeviceTypeRepository {
+    + List<DeviceType> findAll()
+    + DeviceType findById(UUID deviceTypeId)
+    + DeviceType save(DeviceType deviceType)
+    + void deleteById(UUID moduleId)
+}
+
+class Device {
+    - UUID id
+    - DeviceType deviceType
+    - Module module
+    - String name
+    - String serialNumber
+    - LocalDateTime createdAt
+}
+
+class DeviceType {
+    - UUID id
+    - String name
+    - String description
+    - LocalDateTime createdAt
+}
+
+class Module {
+    - UUID id
+    - String name
+    - String description
+    - LocalDateTime createdAt
+}
+
+class DeviceDTO {}
+class DeviceTypeDTO {}
+class ModuleDTO {}
+class StateDTO {}
+class CommandDTO {}
+
+Device --> DeviceType
+Device --> Module
+
+DeviceRepository --> Device
+DeviceTypeRepository --> DeviceType
+ModuleRepository --> Module
+
+DeviceController --> DeviceService
+DeviceTypeController --> DeviceTypeService
+ModuleController --> ModuleService
+
+DeviceService --> DeviceRepository
+DeviceTypeService --> DeviceTypeRepository
+ModuleService --> ModuleRepository
+
+DeviceService --> KafkaTemplate
+DeviceTypeService --> KafkaTemplate
+ModuleService --> KafkaTemplate
+
+DeviceController --> DeviceDTO
+DeviceController --> StateDTO
+DeviceController --> CommandDTO
+DeviceTypeController --> DeviceTypeDTO
+ModuleController --> ModuleDTO
+DeviceService --> DeviceDTO
+DeviceService --> StateDTO
+DeviceService --> CommandDTO
+DeviceTypeService --> DeviceTypeDTO
+ModuleService --> ModuleDTO
+@enduml
