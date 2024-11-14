@@ -1,0 +1,230 @@
+asyncapi: 3.0.0
+info:
+  title: Умный дом Kafka API. Микросервис устройств
+  version: 1.0.0
+defaultContentType: application/json
+channels:
+  deviceEvent:
+    address: smarthome.device.event
+    messages:
+      deviceCreated:
+        $ref: '#/components/messages/deviceCreated'
+      deviceDeleted:
+        $ref: '#/components/messages/deviceDeleted'
+    description: Очередь событий устройств
+  deviceState:
+    address: smarthome.device.state
+    messages:
+      setDeviceStateReq:
+        $ref: '#/components/messages/setDeviceStateReq'
+      setDeviceStateResp:
+        $ref: '#/components/messages/setDeviceStateResp'
+      getDeviceStateReq:
+        $ref: '#/components/messages/getDeviceStateReq'
+      getDeviceStateResp:
+        $ref: '#/components/messages/getDeviceStateResp'
+    description: Очередь сообщений по управлению состоянием устройства
+  deviceCommand:
+    address: smarthome.device.command
+    messages:
+      deviceCommandReq:
+        $ref: '#/components/messages/deviceCommandReq'
+      deviceCommandResp:
+        $ref: '#/components/messages/deviceCommandResp'
+    description: Очередь сообщений по управлению состоянием устройства
+operations:
+  createDevice:
+    action: send
+    channel:
+      $ref: '#/channels/deviceEvent'
+    messages:
+      - $ref: '#/channels/deviceEvent/messages/deviceCreated'
+  deleteDevice:
+    action: send
+    channel:
+      $ref: '#/channels/deviceEvent'
+    messages:
+      - $ref: '#/channels/deviceEvent/messages/deviceDeleted'
+  setDeviceStateReq:
+    action: send
+    channel:
+      $ref: '#/channels/deviceState'
+    messages:
+      - $ref: '#/channels/deviceState/messages/setDeviceStateReq'
+  setDeviceStateResp:
+    action: receive
+    channel:
+      $ref: '#/channels/deviceState'
+    messages:
+      - $ref: '#/channels/deviceState/messages/setDeviceStateResp'
+  getDeviceStateReq:
+    action: send
+    channel:
+      $ref: '#/channels/deviceState'
+    messages:
+      - $ref: '#/channels/deviceState/messages/getDeviceStateReq'
+  getDeviceStateResp:
+    action: receive
+    channel:
+      $ref: '#/channels/deviceState'
+    messages:
+      - $ref: '#/channels/deviceState/messages/getDeviceStateResp'
+  deviceCommandReq:
+    action: send
+    channel:
+      $ref: '#/channels/deviceCommand'
+    messages:
+      - $ref: '#/channels/deviceCommand/messages/deviceCommandReq'
+  deviceCommandResp:
+    action: receive
+    channel:
+      $ref: '#/channels/deviceCommand'
+    messages:
+      - $ref: '#/channels/deviceCommand/messages/deviceCommandResp'
+
+components:
+  messages:
+    deviceCreated:
+      name: deviceCreated
+      title: Создано устройство
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/deviceCreatedPayload'
+    deviceDeleted:
+      name: deviceDeleted
+      title: Удалено устройство
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/deviceDeletedPayload'
+    setDeviceStateReq:
+      name: setDeviceStateReq
+      title: Изменение состояния устройства. Запрос
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/setDeviceStateReqPayload'
+    setDeviceStateResp:
+      name: setDeviceStateResp
+      title: Изменение состояния устройства. Ответ
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/setDeviceStateRespPayload'
+    getDeviceStateReq:
+      name: getDeviceStateReq
+      title: Получение состояния устройства. Запрос
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/getDeviceStateReqPayload'
+    getDeviceStateResp:
+      name: getDeviceStateResp
+      title: Получение состояния устройства. Ответ
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/getDeviceStateRespPayload'
+    deviceCommandReq:
+      name: deviceCommandReq
+      title: Комманда устройству. Запрос
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/deviceCommandReqPayload'
+    deviceCommandResp:
+      name: deviceCommandResp
+      title: Комманда устройству. Ответ
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/deviceCommandRespPayload'
+
+  schemas:
+    deviceCreatedPayload:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          maxLength: 36
+          description: Идентификатор устройства
+          example: "123e4567-e89b-12d3-a456-426655440000"
+        userId:
+          type: string
+          maxLength: 36
+          description: Идентификатор пользователя
+          example: "123e4567-e89b-12d3-a456-426655440001"
+    deviceDeletedPayload:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          maxLength: 36
+          description: Идентификатор устройства
+          example: "123e4567-e89b-12d3-a456-426655440000"
+    setDeviceStateReqPayload:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          maxLength: 36
+          description: Идентификатор устройства
+          example: "123e4567-e89b-12d3-a456-426655440000"
+        state:
+          type: string
+          description: Состояние устройства
+          example: "ON"
+    setDeviceStateRespPayload:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Результат операции
+          example: true
+        messages:
+          type: array
+          description: Сообщения
+          example:
+            - "Не удалось обновить состояние устройства"
+    getDeviceStateReqPayload:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          maxLength: 36
+          description: Идентификатор устройства
+          example: "123e4567-e89b-12d3-a456-426655440000"
+    getDeviceStateRespPayload:
+      type: object
+      properties:
+        state:
+          type: string
+          description: Состояние устройства
+          example: "ON"
+    deviceCommandReqPayload:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          maxLength: 36
+          description: Идентификатор устройства
+          example: "123e4567-e89b-12d3-a456-426655440000"
+        commandType:
+          type: string
+          description: "Тип команды"
+          maxLength: 64
+          example: "SET_TEMPERATURE"
+        commandParams:
+          type: object
+          description: "Список параметров команды"
+          additionalProperties:
+            type: string
+          example:
+            "VALUE": "22"
+            "UNIT": "C"
+    deviceCommandRespPayload:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Результат операции
+          example: true
+        messages:
+          type: array
+          description: Сообщения
+          example:
+            - "Не удалось выполнить команду"
+

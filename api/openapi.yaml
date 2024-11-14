@@ -1,0 +1,428 @@
+openapi: 3.0.3
+info:
+  title: "Система Умный дом. Пользовательский API"
+  version: 1.0.0
+paths:
+  /device-type:
+    post:
+      summary: "Создание нового типа устройства"
+      requestBody:
+        required: true
+        description: "Тело запроса создания типа устройства"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeviceTypeRequest"
+            examples:
+              createDeviceTypeRequest:
+                summary: "Пример создания типа устройства"
+                value:
+                  name: "Датчик температуры"
+                  description: "Датчик для измерения температуры"
+      responses:
+        "200":
+          description: "Тип устройства успешно создан"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateDeviceTypeResponse"
+              examples:
+                createDeviceTypeResponse:
+                  summary: "Пример успешного ответа на запрос создания типа устройства"
+                  value: "123e4567-e89b-12d3-a456-426655440000"
+        "400":
+          description: "Неверная структура запроса"
+        "401":
+          description: "Пользователь не авторизован"
+        "409":
+          description: "Тип устройства с заданным именем уже существует"
+        "500":
+          description: "Ошибка обработки запроса"
+    get:
+      summary: "Получение списка типов устройств"
+      responses:
+        "200":
+          description: "Список типов устройств"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetListDeviceTypeResponse"
+              examples:
+                getListDeviceTypeResponse:
+                  summary: "Пример успешного ответа на запрос списка типов устройств"
+                  value:
+                    - id: "123e4567-e89b-12d3-a456-426655440000"
+                      name: "Датчик температуры"
+                      description: "Датчик для измерения температуры"
+                    - id: "123e4567-e89b-12d3-a456-426655440001"
+                      name: "Датчик управления воротами"
+                      description: "Датчик для открытия/закрытия ворот"
+        "401":
+          description: "Пользователь не авторизован"
+        "500":
+          description: "Ошибка обработки запроса"
+  /device:
+    post:
+      summary: "Создание нового устройства"
+      requestBody:
+        required: true
+        description: "Тело запроса создания устройства"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeviceRequest"
+            examples:
+              createDeviceRequest:
+                summary: "Пример создания устройства"
+                value:
+                  name: "Датчик температуры (Кухня)"
+                  serialNumber: "SN4CE0460D0G"
+                  deviceTypeId: "123e4567-e89b-12d3-a456-426655440000"
+                  moduleId: "123e4567-e89b-12d3-a456-426655440005"
+      responses:
+        "200":
+          description: "Устройство успешно создано"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateDeviceResponse"
+              examples:
+                createDeviceResponse:
+                  summary: "Пример успешного ответа на запрос создания устройства"
+                  value: "123e4567-e89b-12d3-a456-426655440000"
+        "400":
+          description: "Неверная структура запроса"
+        "401":
+          description: "Пользователь не авторизован"
+        "409":
+          description: "Устройство с заданным серийным номером или с именем у пользователя уже существует"
+        "500":
+          description: "Ошибка обработки запроса"
+    get:
+      summary: "Получение списка устройств пользователя"
+      responses:
+        "200":
+          description: "Список устройств пользователя"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetListDeviceResponse"
+              examples:
+                getListDeviceResponse:
+                  summary: "Пример успешного ответа на запрос создания устройства"
+                  value:
+                    - id: "123e4567-e89b-12d3-a456-426655440000"
+                      name: "Датчик температуры (Кухня)"
+                      serialNumber: "SN4CE0460D0G"
+                      deviceTypeId: "123e4567-e89b-12d3-a456-426655440000"
+                      moduleId: "123e4567-e89b-12d3-a456-426655440005"
+                    - id: "123e4567-e89b-12d3-a456-426655440001"
+                      name: "Датчик управления воротами (Гараж)"
+                      serialNumber: "SN4CE0460D0F"
+                      deviceTypeId: "123e4567-e89b-12d3-a456-426655440001"
+                      moduleId: "123e4567-e89b-12d3-a456-426655440006"
+        "401":
+          description: "Пользователь не авторизован"
+        "500":
+          description: "Ошибка обработки запроса"
+  /device/{id}/state:
+    put:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 36
+      summary: "Изменение состояния устройства"
+      requestBody:
+        required: true
+        description: "Тело запроса изменения состояния устройства"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeDeviceStateRequest"
+            examples:
+              changeDeviceStateRequest:
+                summary: "Пример запроса изменения состояния"
+                value: "ON"
+      responses:
+        "200":
+          description: "Команда выполнена"
+        "400":
+          description: "Неверная структура запроса"
+        "401":
+          description: "Пользователь не авторизован"
+        "403":
+          description: "Доступ к устройству запрещен"
+        "404":
+          description: "Устройство не найдено"
+        "408":
+          description: "Истекло время ожидания ответа на запрос"
+        "500":
+          description: "Ошибка обработки запроса"
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 36
+      summary: "Получение состояния устройства"
+      responses:
+        "200":
+          description: "Текущее состояние устройства"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetDeviceStateResponse"
+              examples:
+                deviceStateResponse:
+                  summary: "Пример успешного ответа на запрос текущего состояния устройства"
+                  value: "ON"
+        "401":
+          description: "Пользователь не авторизован"
+        "403":
+          description: "Доступ к устройству запрещен"
+        "404":
+          description: "Устройство не найдено"
+        "408":
+          description: "Истекло время ожидания ответа на запрос"
+        "500":
+          description: "Ошибка обработки запроса"
+  /device/{id}/command:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 36
+      summary: "Отправка команды на устройство"
+      requestBody:
+        required: true
+        description: "Тело запроса отправки команды на устройство"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceCommandRequest"
+            examples:
+              deviceCommandRequest:
+                value:
+                  commandType: "SET_TEMPERATURE"
+                  commandParams:
+                    "VALUE": "22"
+                    "UNIT": "C"
+      responses:
+        "200":
+          description: "Команда выполнена"
+        "400":
+          description: "Неверная структура запроса"
+        "401":
+          description: "Пользователь не авторизован"
+        "403":
+          description: "Доступ к устройству запрещен"
+        "404":
+          description: "Устройство не найдено"
+        "408":
+          description: "Истекло время ожидания ответа на запрос"
+        "500":
+          description: "Ошибка обработки запроса"
+  /device/{id}/telemetry/:
+    get:
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+            maxLength: 36
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      summary: "Получение телеметрии устройства"
+      responses:
+        "200":
+          description: "Список записей телеметрии по устройству"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetDeviceTelemetryResponse"
+              examples:
+                deviceTelemetryResponse:
+                  summary: "Пример успешного ответа на запрос списока записей телеметрии по устройству"
+                  value:
+                    - data: { "TEMPERATURE": "22", "UNIT": "C" }
+                      timestamp: "2024-11-13 09:45:53"
+                    - data: { "TEMPERATURE": "23", "UNIT": "C" }
+                      timestamp: "2024-11-13 10:45:53"
+        "401":
+          description: "Пользователь не авторизован"
+        "403":
+          description: "Доступ к устройству запрещен"
+        "404":
+          description: "Устройство не найдено"
+        "500":
+          description: "Ошибка обработки запроса"
+components:
+  schemas:
+    CreateDeviceTypeRequest:
+      description: "Структура запроса для создания типа устройства"
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          description: "Название типа устройства"
+          example: "Датчик температуры"
+        description:
+          type: string
+          maxLength: 255
+          description: "Описание типа устройства"
+          example: "Датчик для измерения температуры"
+    CreateDeviceTypeResponse:
+      description: "Структура ответа на запрос создания типа устройства. Содержит идентификатор созданного типа устройства"
+      type: string
+      example: "123e4567-e89b-12d3-a456-426655440000"
+    GetListDeviceTypeResponse:
+      description: "Структура ответа на запрос получения списка типов устройств"
+      type: array
+      items:
+        $ref: "#/components/schemas/DeviceTypeItem"
+    DeviceTypeItem:
+      description: "Элемент списка типов устройств"
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Идентификатор типа устройства"
+          example: "123e4567-e89b-12d3-a456-426655440000"
+        name:
+          type: string
+          description: "Название типа устройства"
+          example: "Датчик температуры"
+        description:
+          type: string
+          description: "Описание типа устройства"
+          example: "Датчик для измерения температуры"
+    CreateDeviceRequest:
+      description: "Структура запроса для создания  устройства"
+      type: object
+      required:
+        - name
+        - serialNumber
+        - deviceTypeId
+        - moduleId
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          description: "Название  устройства"
+          example: "Датчик температуры (Зал)"
+        serialNumber:
+          type: string
+          maxLength: 64
+          description: "Серийный номер устройства"
+          example: "SN4CE0460D0G"
+        deviceTypeId:
+          type: string
+          maxLength: 36
+          description: "Идентификатор типа устройства"
+          example: "123e4567-e89b-12d3-a456-426655440000"
+        moduleId:
+          type: string
+          maxLength: 36
+          description: "Идентификатор модуля"
+          example: "123e4567-e89b-12d3-a456-426655440005"
+    CreateDeviceResponse:
+      description: "Структура ответа на запрос создания устройства. Содержит идентификатор созданного устройства"
+      type: string
+      example: "123e4567-e89b-12d3-a456-426655440000"
+    GetListDeviceResponse:
+      description: "Структура ответа на запрос получения списка устройств пользователя"
+      type: array
+      items:
+        $ref: "#/components/schemas/DeviceItem"
+    DeviceItem:
+      description: "Структура ответа на запрос получения списка устройств"
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Идентификатор устройства"
+          example: "123e4567-e89b-12d3-a456-426655440000"
+        name:
+          type: string
+          description: "Название устройства"
+          example: "Датчик температуры (Кухня)"
+        serialNumber:
+          type: string
+          description: "Серийный номер устройства"
+          example: "SN4CE0460D0G"
+        deviceTypeId:
+          type: string
+          description: "Идентификатор типа устройства"
+          example: "123e4567-e89b-12d3-a456-426655440000"
+        moduleId:
+          type: string
+          description: "Идентификатор модуля"
+          example: "123e4567-e89b-12d3-a456-426655440005"
+    ChangeDeviceStateRequest:
+      description: "Структура запроса изменения состояния устройства"
+      type: string
+      example: "ON"
+    GetDeviceStateResponse:
+      description: "Структура ответа на запрос получения текущего состояния устройства"
+      type: string
+      example: "ON"
+    DeviceCommandRequest:
+      description: "Структура запроса отправки команды на устройство"
+      type: object
+      properties:
+        commandType:
+          type: string
+          description: "Тип команды"
+          maxLength: 64
+          example: "SET_TEMPERATURE"
+        commandParams:
+          type: object
+          description: "Список параметров команды"
+          additionalProperties:
+            type: string
+          example:
+            "VALUE": "22"
+            "UNIT": "C"
+    GetDeviceTelemetryResponse:
+      description: "Структура ответа на запрос получения телеметрии устройства"
+      type: array
+      items:
+        $ref: "#/components/schemas/DeviceTelemetryItem"
+    DeviceTelemetryItem:
+      description: "Элемент телеметрии устройства"
+      type: object
+      properties:
+        data:
+          type: object
+          description: "Список параметров команды"
+          additionalProperties:
+            type: string
+          example:
+            "TEMPERATURE": "22"
+            "UNIT": "C"
+        timestamp:
+          type: string
+          format: date-time
+          description: "Время снятия показания"
+          example: "2024-11-13 09:45:53"
